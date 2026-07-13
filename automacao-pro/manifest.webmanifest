@@ -1,0 +1,13 @@
+{
+  "name":"Automação Pro — Simulador Industrial",
+  "short_name":"Automação Pro",
+  "description":"Treinamento de CLP, IHM, Ladder e diagnóstico de falhas.",
+  "start_url":"./index.html",
+  "scope":"./",
+  "display":"standalone",
+  "background_color":"#06101e",
+  "theme_color":"#07111f",
+  "orientation":"any",
+  "lang":"pt-BR",
+  "icons":[{"src":"assets/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}
