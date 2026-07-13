@@ -1,20 +1,42 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /users/{uid} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
     }
-    match /leaderboard/{uid} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null
-        && request.auth.uid == uid
+
+    function validProgress() {
+      return request.resource.data.keys().hasOnly([
+          'nickname', 'xp', 'quizBest', 'productionCount', 'completed',
+          'studiedModules', 'appVersion', 'updatedAt'
+        ])
         && request.resource.data.nickname is string
-        && request.resource.data.nickname.size() >= 2
-        && request.resource.data.nickname.size() <= 20
+        && request.resource.data.nickname.size() >= 1
+        && request.resource.data.nickname.size() <= 24
         && request.resource.data.xp is int
         && request.resource.data.xp >= 0
-        && request.resource.data.xp <= 100000;
+        && request.resource.data.xp <= 10000000
+        && request.resource.data.quizBest is int
+        && request.resource.data.quizBest >= 0
+        && request.resource.data.quizBest <= 100
+        && request.resource.data.productionCount is int
+        && request.resource.data.productionCount >= 0
+        && request.resource.data.productionCount <= 10000000
+        && request.resource.data.completed is list
+        && request.resource.data.completed.size() <= 200
+        && request.resource.data.studiedModules is list
+        && request.resource.data.studiedModules.size() <= 50
+        && request.resource.data.appVersion is string
+        && request.resource.data.appVersion.size() <= 30;
+    }
+
+    match /users/{uid} {
+      allow read, delete: if isOwner(uid);
+      allow create, update: if isOwner(uid) && validProgress();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }
-

@@ -1,32 +1,40 @@
-# Comandos Pro 2.1
+# Comandos Pro 3D 3.0
 
-Aplicativo Android offline de treinamento em comandos elétricos, montagem de painéis, CLP, IHM e diagnóstico de falhas.
+Aplicativo Android nativo, offline-first, para treinamento **virtual** em comandos elétricos, automação, CLP/IHM e diagnóstico.
 
-## Conteúdo
+## Tecnologia
 
-- Partida direta, reversão, estrela-triângulo e inversor.
-- Montagem virtual de painel 220 V / 24 Vcc em trilho DIN.
-- S7-1200 com 14 entradas e 10 saídas.
-- IHM, sequência automática e circuito de segurança.
-- Catálogo técnico de componentes.
-- Falhas industriais, quiz, XP e certificado interno.
-- Firebase opcional para progresso e ranking por apelido.
+- Kotlin 2.2 e Jetpack Compose com Material 3.
+- OpenGL ES 3 para o laboratório de painel tridimensional.
+- Android 16 / API 36, interface edge-to-edge e suporte a diferentes orientações.
+- Firebase Authentication anônimo + Cloud Firestore opcionais.
+- Pacote de conteúdo remoto hospedado no Git para dicas e avisos sem reinstalação.
+- Testes unitários do motor lógico e da avaliação.
 
-## Firebase
+## Recursos
 
-O app continua funcionando offline quando o Firebase está desligado. Para ativar:
+- Capa e ícone próprios com contator industrial.
+- Partida direta, reversão intertravada, estrela-triângulo temporizada e inversor 0–60 Hz.
+- Proteções lógicas contra reversão simultânea e sobreposição estrela/triângulo.
+- Painel 3D com rotação, zoom, iluminação, trilho DIN, animação do contator e montagem virtual.
+- CLP com 14 entradas, 10 saídas, IHM, ciclo automático, alarmes e intertravamento.
+- Biblioteca pesquisável com 25 componentes e informações funcionais.
+- Seis módulos, seis desafios de falha e prova dinâmica de dez questões.
+- XP, níveis, progresso seguro em armazenamento local e certificado virtual a partir de 70%.
 
-1. Criar um projeto Firebase e um aplicativo Web.
-2. Ativar Authentication > Anonymous.
-3. Criar o Firestore Database.
-4. Publicar `firestore.rules`.
-5. Preencher apenas `app/src/main/assets/firebase-config.js` com `apiKey`, `projectId` e `appId`, e mudar `enabled` para `true`.
+## Firebase opcional
 
-Esses valores identificam o app, mas nunca envie `serviceAccountKey.json`, senhas ou chaves privadas ao repositório.
+O app funciona integralmente offline. Para ativar a sincronização:
 
-## Compilação
+1. Registre no Firebase o pacote Android `br.com.ysenerbyte.comandospro3d`.
+2. Ative **Authentication > Anonymous** e o **Cloud Firestore**.
+3. Baixe `google-services.json` e coloque em `app/google-services.json`.
+4. Publique `firestore.rules`.
 
-O workflow GitHub Actions compila com Android API 36 e publica o APK como artefato. O aplicativo não solicita permissões sensíveis; usa somente Internet para a sincronização opcional.
+Não envie contas de serviço, senhas nem chaves privadas ao repositório. O app sincroniza somente apelido, XP e progresso; as regras impedem que uma conta leia o perfil de outra.
 
-> Uso educativo. Trabalhos em instalações reais exigem desenergização, bloqueio, confirmação de ausência de tensão, NR-10 e profissional habilitado.
+## Compilação e QA
 
+O workflow `Comandos Pro 3D - APK` executa testes unitários, lint, compilação com API 36, validação de assinatura e publicação do APK e do SHA-256.
+
+> Uso educativo e exclusivamente virtual. O aplicativo não autoriza intervenção em instalações reais. Qualquer atividade de campo exige qualificação, supervisão, circuito desenergizado, bloqueio e procedimento aprovado.

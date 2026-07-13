@@ -1,4 +1,4 @@
-name: Comandos Pro - Gerar APK
+name: Comandos Pro 3D - APK
 
 on:
   push:
@@ -17,9 +17,9 @@ permissions:
   contents: write
 
 jobs:
-  build-apk:
+  quality-and-apk:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 35
     steps:
       - name: Baixar código
         uses: actions/checkout@v4
@@ -41,15 +41,35 @@ jobs:
       - name: Instalar Android 16
         run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
 
-      - name: Compilar APK
+      - name: Testes do motor lógico
         working-directory: comandos-pro
-        run: gradle --no-daemon clean assembleDebug
+        run: gradle --no-daemon testDebugUnitTest
 
-      - name: Publicar APK
+      - name: Análise estática
+        working-directory: comandos-pro
+        run: gradle --no-daemon lintDebug
+
+      - name: Compilar APK Android 16
+        working-directory: comandos-pro
+        run: gradle --no-daemon assembleDebug
+
+      - name: Validar APK
+        run: |
+          APK="comandos-pro/app/build/outputs/apk/debug/app-debug.apk"
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose "$APK"
+          "$ANDROID_HOME/build-tools/36.0.0/aapt2" dump badging "$APK" | head -n 12
+          cp "$APK" "ComandosPro3D-v3.0.apk"
+          sha256sum "ComandosPro3D-v3.0.apk" > "ComandosPro3D-v3.0.apk.sha256"
+
+      - name: Publicar artefato testado
         uses: actions/upload-artifact@v4
         with:
-          name: ComandosPro-v2.1-Android16
-          path: comandos-pro/app/build/outputs/apk/debug/app-debug.apk
+          name: ComandosPro3D-v3.0-Android16
+          path: |
+            ComandosPro3D-v3.0.apk
+            ComandosPro3D-v3.0.apk.sha256
+            comandos-pro/app/build/reports/tests/testDebugUnitTest/
+            comandos-pro/app/build/reports/lint-results-debug.html
           if-no-files-found: error
           retention-days: 30
 
@@ -58,8 +78,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TAG="comandos-pro-v2.1.0"
-          APK="comandos-pro/app/build/outputs/apk/debug/app-debug.apk"
-          cp "$APK" "ComandosPro-v2.1.apk"
-          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --target "$GITHUB_SHA" --title "Comandos Pro 2.1" --notes "APK Android 16 gerado automaticamente. Firebase preparado para sincronização opcional de progresso e ranking."
-          gh release upload "$TAG" "ComandosPro-v2.1.apk" --clobber
+          TAG="comandos-pro-3d-v3.0.0"
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --target "$GITHUB_SHA" --title "Comandos Pro 3D 3.0" --notes "Novo aplicativo Android nativo em Kotlin/Compose, com laboratório OpenGL 3D, simuladores validados, CLP/IHM, catálogo, treinamento e Firebase opcional. Uso exclusivamente virtual."
+          gh release upload "$TAG" "ComandosPro3D-v3.0.apk" "ComandosPro3D-v3.0.apk.sha256" --clobber
