@@ -1,0 +1,42 @@
+name: Gerar APK Automacao Pro
+on:
+  push:
+    branches:
+      - agent/automacao-pro-apk
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: automacao-pro
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: automacao-pro/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Instalar dependencias
+        run: npm ci
+      - name: Preparar aplicativo web
+        run: |
+          mkdir -p www
+          cp index.html manifest.webmanifest sw.js www/
+          cp -r css js assets www/
+      - name: Criar projeto Android
+        run: npx cap add android
+      - name: Compilar APK
+        run: |
+          chmod +x android/gradlew
+          ./android/gradlew -p android assembleDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Automacao-Pro-APK
+          path: automacao-pro/android/app/build/outputs/apk/debug/app-debug.apk
