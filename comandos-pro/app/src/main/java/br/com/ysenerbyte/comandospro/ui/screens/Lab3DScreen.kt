@@ -1,6 +1,7 @@
 package br.com.ysenerbyte.comandospro.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -29,6 +31,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -63,6 +69,15 @@ fun Lab3DScreen(
     var autoRotate by remember { mutableStateOf(true) }
     var assembly by remember { mutableStateOf(emptyList<String>()) }
     var validation by remember { mutableStateOf<String?>(null) }
+    var rendererError by remember { mutableStateOf<String?>(null) }
+    var panelView by remember { mutableStateOf<Panel3DView?>(null) }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            panelView?.onPause()
+            panelView = null
+        }
+    }
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -71,7 +86,7 @@ fun Lab3DScreen(
     ) {
         item {
             ScreenIntro(
-                eyebrow = "OpenGL ES 3",
+                eyebrow = "OpenGL 3D compatível",
                 title = "Laboratório de painel 3D",
                 description = "Arraste para girar, use dois dedos para ampliar e acompanhe a armadura do contator."
             )
@@ -102,18 +117,40 @@ fun Lab3DScreen(
                             .height(390.dp)
                             .background(MaterialTheme.colorScheme.background)
                     ) {
-                        AndroidView(
-                            factory = { context -> Panel3DView(context) },
-                            update = { view ->
-                                view.setActiveComponent(activeIndex)
-                                view.setEnergized(energized && exploreMode)
-                                view.setVisibleComponents(if (exploreMode) 7 else assembly.size)
-                                view.setAutoRotate(autoRotate)
-                            },
-                            modifier = Modifier.fillMaxSize()
-                        )
+                        if (rendererError == null) {
+                            AndroidView(
+                                factory = { context ->
+                                    Panel3DView(context).also { view ->
+                                        panelView = view
+                                        view.onRendererError = { message ->
+                                            view.onPause()
+                                            panelView = null
+                                            rendererError = message
+                                        }
+                                    }
+                                },
+                                update = { view ->
+                                    view.setActiveComponent(activeIndex)
+                                    view.setEnergized(energized && exploreMode)
+                                    view.setVisibleComponents(if (exploreMode) 7 else assembly.size)
+                                    view.setAutoRotate(autoRotate)
+                                },
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        } else {
+                            CompatiblePanel(
+                                activeIndex = activeIndex,
+                                energized = energized && exploreMode,
+                                visibleComponents = if (exploreMode) 7 else assembly.size,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
                         Text(
-                            if (exploreMode) "3D AO VIVO" else "${assembly.size}/7 COMPONENTES",
+                            when {
+                                rendererError != null -> "MODO COMPATÍVEL"
+                                exploreMode -> "3D AO VIVO"
+                                else -> "${assembly.size}/7 COMPONENTES"
+                            },
                             modifier = Modifier
                                 .align(Alignment.TopStart)
                                 .padding(12.dp)
@@ -133,7 +170,11 @@ fun Lab3DScreen(
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            "A cena usa perspectiva, profundidade, iluminação direcional e animação em tempo real.",
+                            if (rendererError == null) {
+                                "A cena usa perspectiva, profundidade, iluminação direcional e animação em tempo real."
+                            } else {
+                                "O modo compatível foi ativado automaticamente para manter o laboratório funcionando neste aparelho."
+                            },
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -260,6 +301,99 @@ fun Lab3DScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun CompatiblePanel(
+    activeIndex: Int,
+    energized: Boolean,
+    visibleComponents: Int,
+    modifier: Modifier = Modifier
+) {
+    Canvas(modifier.background(Color(0xFF06111E))) {
+        val panelLeft = size.width * 0.06f
+        val panelTop = size.height * 0.07f
+        val panelWidth = size.width * 0.88f
+        val panelHeight = size.height * 0.84f
+        drawRect(
+            color = Color(0xFF102A3C),
+            topLeft = Offset(panelLeft, panelTop),
+            size = Size(panelWidth, panelHeight)
+        )
+        drawRect(
+            color = Color(0xFF4C6978),
+            topLeft = Offset(panelLeft, panelTop),
+            size = Size(panelWidth, panelHeight),
+            style = Stroke(width = 3f)
+        )
+
+        listOf(0.27f, 0.52f, 0.75f).forEach { fraction ->
+            val y = panelTop + panelHeight * fraction
+            drawRect(
+                color = Color(0xFF80939B),
+                topLeft = Offset(panelLeft + panelWidth * 0.05f, y),
+                size = Size(panelWidth * 0.90f, 6f)
+            )
+        }
+
+        val centers = listOf(
+            Offset(0.16f, 0.20f),
+            Offset(0.34f, 0.20f),
+            Offset(0.55f, 0.20f),
+            Offset(0.79f, 0.20f),
+            Offset(0.29f, 0.45f),
+            Offset(0.53f, 0.45f),
+            Offset(0.78f, 0.45f)
+        )
+        val componentColors = listOf(
+            Color(0xFFD8DEE1),
+            Color(0xFF5D676D),
+            Color(0xFF28658A),
+            Color(0xFFE8A719),
+            Color(0xFF525D62),
+            Color(0xFF525D62),
+            Color(0xFF375D70)
+        )
+
+        repeat(visibleComponents.coerceIn(0, centers.size)) { index ->
+            val center = centers[index]
+            val width = panelWidth * if (index == 2) 0.22f else 0.13f
+            val height = panelHeight * 0.16f
+            val x = panelLeft + panelWidth * center.x - width / 2f
+            val y = panelTop + panelHeight * center.y - height / 2f
+            val activeColor = when {
+                energized && index == 4 -> Color(0xFFFF6B2C)
+                else -> componentColors[index]
+            }
+            drawRect(activeColor, Offset(x, y), Size(width, height))
+            drawRect(
+                color = if (index == activeIndex) Color(0xFFFFC857) else Color(0xFF17232A),
+                topLeft = Offset(x, y),
+                size = Size(width, height),
+                style = Stroke(width = if (index == activeIndex) 7f else 2f)
+            )
+            repeat(3) { terminal ->
+                val terminalX = x + width * (0.25f + terminal * 0.25f)
+                drawCircle(Color(0xFFD8B65C), 5f, Offset(terminalX, y + 7f))
+                drawCircle(Color(0xFFD8B65C), 5f, Offset(terminalX, y + height - 7f))
+            }
+        }
+
+        if (visibleComponents >= 5) {
+            val motorColor = if (energized) Color(0xFF1FA6D1) else Color(0xFF284F61)
+            val motorWidth = panelWidth * 0.28f
+            val motorHeight = panelHeight * 0.11f
+            val motorX = panelLeft + (panelWidth - motorWidth) / 2f
+            val motorY = panelTop + panelHeight * 0.79f
+            drawRect(motorColor, Offset(motorX, motorY), Size(motorWidth, motorHeight))
+            drawLine(
+                color = if (energized) Color(0xFFFF6B2C) else Color(0xFF247395),
+                start = Offset(panelLeft + panelWidth * 0.29f, panelTop + panelHeight * 0.53f),
+                end = Offset(size.width / 2f, motorY),
+                strokeWidth = 7f
+            )
         }
     }
 }

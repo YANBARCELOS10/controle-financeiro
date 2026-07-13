@@ -1,7 +1,7 @@
 package br.com.ysenerbyte.comandospro.gl
 
 import android.content.Context
-import android.opengl.GLES30
+import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
 import android.util.AttributeSet
@@ -19,7 +19,11 @@ class Panel3DView @JvmOverloads constructor(
     attrs: AttributeSet? = null
 ) : GLSurfaceView(context, attrs) {
 
-    private val panelRenderer = PanelRenderer()
+    var onRendererError: ((String) -> Unit)? = null
+
+    private val panelRenderer = PanelRenderer { message ->
+        post { onRendererError?.invoke(message) }
+    }
     private var previousX = 0f
     private var previousY = 0f
 
@@ -34,7 +38,10 @@ class Panel3DView @JvmOverloads constructor(
     )
 
     init {
-        setEGLContextClientVersion(3)
+        // ES 2.0 keeps the same real-time 3D scene while avoiding driver-specific
+        // failures seen on a few Android 15/16 devices when creating ES 3 VAOs.
+        setEGLContextClientVersion(2)
+        setEGLConfigChooser(8, 8, 8, 8, 16, 0)
         setRenderer(panelRenderer)
         renderMode = RENDERMODE_CONTINUOUSLY
         preserveEGLContextOnPause = true
@@ -92,7 +99,9 @@ class Panel3DView @JvmOverloads constructor(
     }
 }
 
-private class PanelRenderer : GLSurfaceView.Renderer {
+private class PanelRenderer(
+    private val onError: (String) -> Unit
+) : GLSurfaceView.Renderer {
     @Volatile var rotationX = -12f
     @Volatile var rotationY = -18f
     @Volatile var zoom = 1f
@@ -102,7 +111,6 @@ private class PanelRenderer : GLSurfaceView.Renderer {
     @Volatile var autoRotate = true
 
     private var program = 0
-    private var vao = 0
     private var vbo = 0
     private var viewportRatio = 1f
     private var contactorTravel = 0f
@@ -110,6 +118,10 @@ private class PanelRenderer : GLSurfaceView.Renderer {
     private var mvpLocation = -1
     private var modelLocation = -1
     private var colorLocation = -1
+    private var positionLocation = -1
+    private var normalLocation = -1
+    private var ready = false
+    private var failureReported = false
 
     private val projection = FloatArray(16)
     private val view = FloatArray(16)
@@ -120,70 +132,114 @@ private class PanelRenderer : GLSurfaceView.Renderer {
     private val mvp = FloatArray(16)
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
-        GLES30.glClearColor(0.018f, 0.043f, 0.075f, 1f)
-        GLES30.glEnable(GLES30.GL_DEPTH_TEST)
-        GLES30.glEnable(GLES30.GL_CULL_FACE)
-        GLES30.glCullFace(GLES30.GL_BACK)
+        try {
+            GLES20.glClearColor(0.018f, 0.043f, 0.075f, 1f)
+            GLES20.glEnable(GLES20.GL_DEPTH_TEST)
+            GLES20.glEnable(GLES20.GL_CULL_FACE)
+            GLES20.glCullFace(GLES20.GL_BACK)
 
-        program = createProgram(VERTEX_SHADER, FRAGMENT_SHADER)
-        mvpLocation = GLES30.glGetUniformLocation(program, "uMvp")
-        modelLocation = GLES30.glGetUniformLocation(program, "uModel")
-        colorLocation = GLES30.glGetUniformLocation(program, "uColor")
+            program = createProgram(VERTEX_SHADER, FRAGMENT_SHADER)
+            mvpLocation = GLES20.glGetUniformLocation(program, "uMvp")
+            modelLocation = GLES20.glGetUniformLocation(program, "uModel")
+            colorLocation = GLES20.glGetUniformLocation(program, "uColor")
+            positionLocation = GLES20.glGetAttribLocation(program, "aPosition")
+            normalLocation = GLES20.glGetAttribLocation(program, "aNormal")
+            checkLocations()
 
-        val buffers = IntArray(1)
-        GLES30.glGenVertexArrays(1, buffers, 0)
-        vao = buffers[0]
-        GLES30.glGenBuffers(1, buffers, 0)
-        vbo = buffers[0]
+            val buffers = IntArray(1)
+            GLES20.glGenBuffers(1, buffers, 0)
+            vbo = buffers[0]
+            check(vbo != 0) { "O driver não criou o buffer 3D." }
 
-        GLES30.glBindVertexArray(vao)
-        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, vbo)
-        val vertexBuffer = CUBE_VERTICES.toFloatBuffer()
-        GLES30.glBufferData(
-            GLES30.GL_ARRAY_BUFFER,
-            CUBE_VERTICES.size * Float.SIZE_BYTES,
-            vertexBuffer,
-            GLES30.GL_STATIC_DRAW
-        )
-        GLES30.glEnableVertexAttribArray(0)
-        GLES30.glVertexAttribPointer(0, 3, GLES30.GL_FLOAT, false, 6 * Float.SIZE_BYTES, 0)
-        GLES30.glEnableVertexAttribArray(1)
-        GLES30.glVertexAttribPointer(
-            1,
-            3,
-            GLES30.GL_FLOAT,
-            false,
-            6 * Float.SIZE_BYTES,
-            3 * Float.SIZE_BYTES
-        )
-        GLES30.glBindVertexArray(0)
+            GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vbo)
+            val vertexBuffer = CUBE_VERTICES.toFloatBuffer()
+            GLES20.glBufferData(
+                GLES20.GL_ARRAY_BUFFER,
+                CUBE_VERTICES.size * Float.SIZE_BYTES,
+                vertexBuffer,
+                GLES20.GL_STATIC_DRAW
+            )
+            GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0)
+            checkGlError("inicialização")
+            ready = true
+        } catch (failure: Throwable) {
+            reportFailure(failure)
+        }
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
-        GLES30.glViewport(0, 0, width, height)
+        GLES20.glViewport(0, 0, width, height)
         viewportRatio = if (height == 0) 1f else width.toFloat() / height.toFloat()
     }
 
     override fun onDrawFrame(gl: GL10?) {
-        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
-        if (autoRotate) rotationY += 0.12f
+        try {
+            GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
+            if (!ready) return
+            if (autoRotate) rotationY += 0.12f
 
-        val targetTravel = if (energized) 1f else 0f
-        contactorTravel += (targetTravel - contactorTravel) * 0.09f
+            val targetTravel = if (energized) 1f else 0f
+            contactorTravel += (targetTravel - contactorTravel) * 0.09f
 
-        Matrix.perspectiveM(projection, 0, 43f, viewportRatio, 1f, 40f)
-        val distance = 13.2f / zoom
-        Matrix.setLookAtM(view, 0, 0f, 0.3f, distance, 0f, 0f, 0f, 0f, 1f, 0f)
-        Matrix.multiplyMM(viewProjection, 0, projection, 0, view, 0)
+            Matrix.perspectiveM(projection, 0, 43f, viewportRatio, 1f, 40f)
+            val distance = 13.2f / zoom
+            Matrix.setLookAtM(view, 0, 0f, 0.3f, distance, 0f, 0f, 0f, 0f, 1f, 0f)
+            Matrix.multiplyMM(viewProjection, 0, projection, 0, view, 0)
 
-        Matrix.setIdentityM(global, 0)
-        Matrix.rotateM(global, 0, rotationX, 1f, 0f, 0f)
-        Matrix.rotateM(global, 0, rotationY, 0f, 1f, 0f)
+            Matrix.setIdentityM(global, 0)
+            Matrix.rotateM(global, 0, rotationX, 1f, 0f, 0f)
+            Matrix.rotateM(global, 0, rotationY, 0f, 1f, 0f)
 
-        GLES30.glUseProgram(program)
-        GLES30.glBindVertexArray(vao)
-        drawPanel()
-        GLES30.glBindVertexArray(0)
+            GLES20.glUseProgram(program)
+            GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vbo)
+            GLES20.glEnableVertexAttribArray(positionLocation)
+            GLES20.glVertexAttribPointer(
+                positionLocation,
+                3,
+                GLES20.GL_FLOAT,
+                false,
+                6 * Float.SIZE_BYTES,
+                0
+            )
+            GLES20.glEnableVertexAttribArray(normalLocation)
+            GLES20.glVertexAttribPointer(
+                normalLocation,
+                3,
+                GLES20.GL_FLOAT,
+                false,
+                6 * Float.SIZE_BYTES,
+                3 * Float.SIZE_BYTES
+            )
+            drawPanel()
+            GLES20.glDisableVertexAttribArray(positionLocation)
+            GLES20.glDisableVertexAttribArray(normalLocation)
+            GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0)
+        } catch (failure: Throwable) {
+            reportFailure(failure)
+        }
+    }
+
+    private fun checkLocations() {
+        check(mvpLocation >= 0 && modelLocation >= 0 && colorLocation >= 0) {
+            "O driver não disponibilizou os controles do sombreador."
+        }
+        check(positionLocation >= 0 && normalLocation >= 0) {
+            "O driver não disponibilizou os atributos do modelo."
+        }
+    }
+
+    private fun checkGlError(stage: String) {
+        val errorCode = GLES20.glGetError()
+        check(errorCode == GLES20.GL_NO_ERROR) {
+            "Falha gráfica durante $stage (código $errorCode)."
+        }
+    }
+
+    private fun reportFailure(failure: Throwable) {
+        ready = false
+        if (failureReported) return
+        failureReported = true
+        onError(failure.message?.take(180) ?: "Falha do driver gráfico.")
     }
 
     private fun drawPanel() {
@@ -366,41 +422,43 @@ private class PanelRenderer : GLSurfaceView.Renderer {
         Matrix.scaleM(local, 0, width, height, depth)
         Matrix.multiplyMM(model, 0, global, 0, local, 0)
         Matrix.multiplyMM(mvp, 0, viewProjection, 0, model, 0)
-        GLES30.glUniformMatrix4fv(mvpLocation, 1, false, mvp, 0)
-        GLES30.glUniformMatrix4fv(modelLocation, 1, false, model, 0)
-        GLES30.glUniform4fv(colorLocation, 1, color, 0)
-        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 36)
+        GLES20.glUniformMatrix4fv(mvpLocation, 1, false, mvp, 0)
+        GLES20.glUniformMatrix4fv(modelLocation, 1, false, model, 0)
+        GLES20.glUniform4fv(colorLocation, 1, color, 0)
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 36)
     }
 
     private fun createProgram(vertexSource: String, fragmentSource: String): Int {
-        val vertex = compileShader(GLES30.GL_VERTEX_SHADER, vertexSource)
-        val fragment = compileShader(GLES30.GL_FRAGMENT_SHADER, fragmentSource)
-        val result = GLES30.glCreateProgram()
-        GLES30.glAttachShader(result, vertex)
-        GLES30.glAttachShader(result, fragment)
-        GLES30.glLinkProgram(result)
+        val vertex = compileShader(GLES20.GL_VERTEX_SHADER, vertexSource)
+        val fragment = compileShader(GLES20.GL_FRAGMENT_SHADER, fragmentSource)
+        val result = GLES20.glCreateProgram()
+        check(result != 0) { "O driver não criou o programa gráfico." }
+        GLES20.glAttachShader(result, vertex)
+        GLES20.glAttachShader(result, fragment)
+        GLES20.glLinkProgram(result)
         val status = IntArray(1)
-        GLES30.glGetProgramiv(result, GLES30.GL_LINK_STATUS, status, 0)
+        GLES20.glGetProgramiv(result, GLES20.GL_LINK_STATUS, status, 0)
         if (status[0] == 0) {
-            val message = GLES30.glGetProgramInfoLog(result)
-            GLES30.glDeleteProgram(result)
-            error("OpenGL program link failed: $message")
+            val message = GLES20.glGetProgramInfoLog(result)
+            GLES20.glDeleteProgram(result)
+            throw IllegalStateException("Falha ao preparar o painel 3D: ${message.take(120)}")
         }
-        GLES30.glDeleteShader(vertex)
-        GLES30.glDeleteShader(fragment)
+        GLES20.glDeleteShader(vertex)
+        GLES20.glDeleteShader(fragment)
         return result
     }
 
     private fun compileShader(type: Int, source: String): Int {
-        val shader = GLES30.glCreateShader(type)
-        GLES30.glShaderSource(shader, source)
-        GLES30.glCompileShader(shader)
+        val shader = GLES20.glCreateShader(type)
+        check(shader != 0) { "O driver não criou o sombreador 3D." }
+        GLES20.glShaderSource(shader, source)
+        GLES20.glCompileShader(shader)
         val status = IntArray(1)
-        GLES30.glGetShaderiv(shader, GLES30.GL_COMPILE_STATUS, status, 0)
+        GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, status, 0)
         if (status[0] == 0) {
-            val message = GLES30.glGetShaderInfoLog(shader)
-            GLES30.glDeleteShader(shader)
-            error("OpenGL shader compile failed: $message")
+            val message = GLES20.glGetShaderInfoLog(shader)
+            GLES20.glDeleteShader(shader)
+            throw IllegalStateException("Falha ao iniciar o painel 3D: ${message.take(120)}")
         }
         return shader
     }
@@ -415,32 +473,29 @@ private class PanelRenderer : GLSurfaceView.Renderer {
         }
 
     companion object {
-        private const val VERTEX_SHADER = """
-            #version 300 es
-            layout(location = 0) in vec3 aPosition;
-            layout(location = 1) in vec3 aNormal;
+        private val VERTEX_SHADER = """
+            attribute vec3 aPosition;
+            attribute vec3 aNormal;
             uniform mat4 uMvp;
             uniform mat4 uModel;
-            out vec3 vNormal;
+            varying vec3 vNormal;
             void main() {
                 gl_Position = uMvp * vec4(aPosition, 1.0);
-                vNormal = mat3(uModel) * aNormal;
+                vNormal = (uModel * vec4(aNormal, 0.0)).xyz;
             }
-        """
+        """.trimIndent()
 
-        private const val FRAGMENT_SHADER = """
-            #version 300 es
+        private val FRAGMENT_SHADER = """
             precision mediump float;
-            in vec3 vNormal;
+            varying vec3 vNormal;
             uniform vec4 uColor;
-            out vec4 fragColor;
             void main() {
                 vec3 light = normalize(vec3(-0.35, 0.70, 0.55));
                 float diffuse = max(dot(normalize(vNormal), light), 0.0);
                 float shade = 0.38 + diffuse * 0.62;
-                fragColor = vec4(uColor.rgb * shade, uColor.a);
+                gl_FragColor = vec4(uColor.rgb * shade, uColor.a);
             }
-        """
+        """.trimIndent()
 
         private val CUBE_VERTICES = floatArrayOf(
             // Front
