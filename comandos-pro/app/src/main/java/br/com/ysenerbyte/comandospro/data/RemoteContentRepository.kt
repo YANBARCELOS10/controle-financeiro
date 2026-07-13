@@ -1,6 +1,7 @@
 package br.com.ysenerbyte.comandospro.data
 
 import android.content.Context
+import androidx.core.content.edit
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
@@ -37,7 +38,7 @@ class RemoteContentRepository(context: Context) {
             val body = connection.inputStream.bufferedReader(Charsets.UTF_8).use { it.readText() }
             require(body.length <= MAX_CONTENT_BYTES) { "Pacote remoto acima do limite" }
             val pack = decode(body)
-            preferences.edit().putString(KEY_JSON, body).apply()
+            preferences.edit { putString(KEY_JSON, body) }
             pack
         } finally {
             connection.disconnect()

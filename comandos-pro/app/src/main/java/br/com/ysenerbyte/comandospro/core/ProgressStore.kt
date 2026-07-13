@@ -1,6 +1,7 @@
 package br.com.ysenerbyte.comandospro.core
 
 import android.content.Context
+import androidx.core.content.edit
 
 class ProgressStore(context: Context) {
     private val preferences = context.getSharedPreferences("comandos_pro_progress_v3", Context.MODE_PRIVATE)
@@ -23,23 +24,23 @@ class ProgressStore(context: Context) {
                 .ifBlank { "Operador" }
         )
     }.getOrElse {
-        preferences.edit().clear().apply()
+        preferences.edit { clear() }
         UserProgress()
     }
 
     fun save(progress: UserProgress) {
-        preferences.edit()
-            .putInt(KEY_XP, progress.xp.coerceIn(0, MAX_XP))
-            .putStringSet(KEY_COMPLETED, progress.completed.toSet())
-            .putStringSet(KEY_STUDIED, progress.studiedModules.toSet())
-            .putInt(KEY_QUIZ_BEST, progress.quizBest.coerceIn(0, 100))
-            .putInt(KEY_COUNT, progress.productionCount.coerceIn(0, MAX_COUNT))
-            .putString(KEY_NICKNAME, progress.nickname.trim().take(24).ifBlank { "Operador" })
-            .apply()
+        preferences.edit {
+            putInt(KEY_XP, progress.xp.coerceIn(0, MAX_XP))
+            putStringSet(KEY_COMPLETED, progress.completed.toSet())
+            putStringSet(KEY_STUDIED, progress.studiedModules.toSet())
+            putInt(KEY_QUIZ_BEST, progress.quizBest.coerceIn(0, 100))
+            putInt(KEY_COUNT, progress.productionCount.coerceIn(0, MAX_COUNT))
+            putString(KEY_NICKNAME, progress.nickname.trim().take(24).ifBlank { "Operador" })
+        }
     }
 
     fun reset(): UserProgress {
-        preferences.edit().clear().apply()
+        preferences.edit { clear() }
         return UserProgress()
     }
 

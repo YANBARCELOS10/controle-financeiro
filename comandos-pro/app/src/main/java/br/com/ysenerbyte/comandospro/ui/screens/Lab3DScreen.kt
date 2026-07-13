@@ -23,6 +23,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -57,7 +58,7 @@ fun Lab3DScreen(
         )
     }
     var exploreMode by remember { mutableStateOf(true) }
-    var activeIndex by remember { mutableStateOf(4) }
+    var activeIndex by remember { mutableIntStateOf(4) }
     var energized by remember { mutableStateOf(false) }
     var autoRotate by remember { mutableStateOf(true) }
     var assembly by remember { mutableStateOf(emptyList<String>()) }

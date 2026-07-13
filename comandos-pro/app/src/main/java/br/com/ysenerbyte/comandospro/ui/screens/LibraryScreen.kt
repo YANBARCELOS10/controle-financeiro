@@ -1,7 +1,7 @@
 package br.com.ysenerbyte.comandospro.ui.screens
 
 import android.content.Intent
-import android.net.Uri
+import androidx.core.net.toUri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -135,7 +135,7 @@ fun LibraryScreen(
                         OutlinedButton(
                             onClick = {
                                 runCatching {
-                                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(remotePack.releaseUrl)))
+                                    context.startActivity(Intent(Intent.ACTION_VIEW, remotePack.releaseUrl.toUri()))
                                 }
                             }
                         ) { Text("VERSÕES") }
