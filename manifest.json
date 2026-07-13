@@ -1,12 +1,12 @@
 {
-  "name": "Financeiro Pro 3.1",
-  "short_name": "Financeiro Pro",
+  "name": "BF Finance",
+  "short_name": "BF Finance",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#07111f",
-  "theme_color": "#07111f",
-  "description": "Controle financeiro responsivo com contas, cartões, investimentos, metas e relatórios.",
+  "background_color": "#080b14",
+  "theme_color": "#7c3aed",
+  "description": "Controle financeiro inteligente com contas, cartões, metas, relatórios e backup.",
   "icons": [
     {
       "src": "icon.svg",
