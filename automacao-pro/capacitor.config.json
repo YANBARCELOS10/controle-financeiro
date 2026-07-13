@@ -1,0 +1,6 @@
+{
+  "appId":"com.automacaopro.simulador",
+  "appName":"Automação Pro",
+  "webDir":"www",
+  "server":{"androidScheme":"https"}
+}
