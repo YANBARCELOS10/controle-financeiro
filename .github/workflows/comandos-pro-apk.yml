@@ -60,5 +60,6 @@ jobs:
         run: |
           TAG="comandos-pro-v2.1.0"
           APK="comandos-pro/app/build/outputs/apk/debug/app-debug.apk"
+          cp "$APK" "ComandosPro-v2.1.apk"
           gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --target "$GITHUB_SHA" --title "Comandos Pro 2.1" --notes "APK Android 16 gerado automaticamente. Firebase preparado para sincronização opcional de progresso e ranking."
-          gh release upload "$TAG" "$APK#ComandosPro-v2.1.apk" --clobber
+          gh release upload "$TAG" "ComandosPro-v2.1.apk" --clobber
