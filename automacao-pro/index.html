@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#07111f">
+  <meta name="description" content="Simulador didático de CLP, IHM, Ladder e diagnóstico de falhas industriais.">
+  <title>Automação Pro — Simulador Industrial</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div><span class="brand-mark">AP</span><div><h1>Automação Pro</h1><p>Simulador de diagnóstico industrial</p></div></div>
+    <div class="top-status"><span id="runLed" class="led green"></span><b id="cpuMode">RUN</b></div>
+  </header>
+
+  <nav class="tabs" aria-label="Telas principais">
+    <button class="tab active" data-view="inicio">Visão geral</button>
+    <button class="tab" data-view="maquina">Máquina</button>
+    <button class="tab" data-view="painel">Painel e I/O</button>
+    <button class="tab" data-view="ladder">Ladder</button>
+    <button class="tab" data-view="diagnostico">Diagnóstico</button>
+    <button class="tab" data-view="estudo">Treinamento</button>
+  </nav>
+
+  <main>
+    <section id="inicio" class="view active">
+      <div class="hero card">
+        <div><span class="eyebrow">LINHA DE CAIXAS • S7-1200</span><h2>Treine o raciocínio de manutenção</h2><p>Acompanhe o sinal desde o sensor até o atuador, injete defeitos e encontre a causa sem alterar a lógica do CLP.</p></div>
+        <div class="hero-score"><small>Melhor diagnóstico</small><strong id="bestScore">—</strong><span>pontos</span></div>
+      </div>
+      <div class="grid metrics">
+        <div class="metric card"><span>CLP</span><strong id="dashPlc">RUN</strong><small>CPU Siemens S7-1200</small></div>
+        <div class="metric card"><span>Segurança</span><strong id="dashSafety">OK</strong><small>Emergência e portas</small></div>
+        <div class="metric card"><span>Produção</span><strong id="dashCycles">0</strong><small>ciclos simulados</small></div>
+        <div class="metric card"><span>Alarmes</span><strong id="dashAlarms">0</strong><small>ativos no momento</small></div>
+      </div>
+      <div class="grid two">
+        <div class="card"><div class="card-title"><h3>Fluxo do sinal</h3><span>diagnóstico padrão</span></div><div class="signal-flow"><div>Sensor<small>campo</small></div><i>›</i><div>Entrada<small>%I</small></div><i>›</i><div>Lógica<small>CLP</small></div><i>›</i><div>Saída<small>%Q</small></div><i>›</i><div>Atuador<small>carga</small></div></div></div>
+        <div class="card"><div class="card-title"><h3>Alarmes atuais</h3><button class="ghost small-btn" data-go="diagnostico">Investigar</button></div><div id="alarmSummary" class="alarm-list"><div class="empty">Nenhum alarme ativo.</div></div></div>
+      </div>
+    </section>
+
+    <section id="maquina" class="view">
+      <div class="control-strip card">
+        <div><button id="startBtn" class="btn green-btn">START</button><button id="stopBtn" class="btn red-btn">STOP</button><button id="resetBtn" class="btn blue-btn">RESET</button><button id="cycleBtn" class="btn amber-btn">1 CICLO</button></div>
+        <div class="mode-switch"><span>MODO</span><button id="modeBtn" class="pill">MANUAL</button></div>
+      </div>
+      <div class="machine-stage card">
+        <div class="stage-head"><div><b>ESTEIRA DE CAIXAS</b><small id="stageStatus">Máquina pronta</small></div><div class="counter"><span>CONTADOR CTU</span><strong id="cycleCount">0</strong><small>PV = 5</small></div></div>
+        <div class="machine">
+          <div class="safety-fence"></div>
+          <div id="sensorBeam" class="sensor-beam"></div>
+          <div class="sensor-device"><span id="sensorLed" class="mini-led"></span><small>B1</small></div>
+          <div id="box" class="box"><span>CAIXA</span></div>
+          <div class="conveyor"><div id="belt" class="belt"></div></div>
+          <div id="motor" class="motor"><div></div><span>M1</span></div>
+          <div id="pusher" class="pusher"><div></div><span>Y1</span></div>
+        </div>
+        <div id="stepBar" class="stepbar"></div>
+      </div>
+      <div class="card"><div class="card-title"><h3>IHM da linha</h3><span id="hmiClock">--:--:--</span></div><div class="hmi-grid"><div><span>Estado</span><b id="hmiState">PARADA</b></div><div><span>Etapa</span><b id="hmiStep">Aguardando</b></div><div><span>Meta</span><b id="hmiTarget">0 / 5</b></div><div><span>Último alarme</span><b id="hmiAlarm">Nenhum</b></div></div></div>
+    </section>
+
+    <section id="painel" class="view">
+      <div class="grid panel-layout">
+        <div class="card power-panel">
+          <div class="card-title"><h3>Alimentação do painel</h3><span>representação didática</span></div>
+          <div id="powerChain" class="power-chain"></div>
+          <div class="bus red-bus">+24 Vcc</div><div class="bus blue-bus">0 Vcc</div>
+          <div class="safety-controls"><button id="emergencyBtn" class="btn green-btn">EMERGÊNCIA LIBERADA</button><button id="doorBtn" class="btn green-btn">PORTAS FECHADAS</button><button id="safetyResetBtn" class="btn blue-btn">RESET SEGURANÇA</button></div>
+        </div>
+        <div class="card plc-panel">
+          <div class="plc-device"><div class="plc-label"><b>SIEMENS</b><span>SIMATIC S7-1200</span></div><div class="cpu-block"><span>CPU 1214C</span><div><i id="plcRunLed" class="mini-led on"></i> RUN</div><div><i id="plcErrorLed" class="mini-led red"></i> ERROR</div></div><div><b>DI 24 VDC</b><div id="plcInputLeds" class="plc-leds"></div></div><div><b>DQ 24 VDC</b><div id="plcOutputLeds" class="plc-leds output"></div></div></div>
+        </div>
+      </div>
+      <div class="grid two">
+        <div class="card"><div class="card-title"><h3>Entradas digitais</h3><span>sensores e comandos</span></div><div class="io-table" id="inputTable"></div></div>
+        <div class="card"><div class="card-title"><h3>Saídas digitais</h3><span>relés e cargas</span></div><div class="io-table" id="outputTable"></div></div>
+      </div>
+    </section>
+
+    <section id="ladder" class="view">
+      <div class="card"><div class="card-title"><h3>Monitor Ladder</h3><span>verde = continuidade lógica</span></div><div class="ladder-toolbar"><span>OB1 • Online</span><span id="scanTime">Scan: 4 ms</span></div><div id="ladderRungs" class="ladder"></div></div>
+      <div class="grid three"><div class="card tag-card"><span>%M0.0</span><b id="tagAuto">0</b><small>Sistema_Ligado</small></div><div class="card tag-card"><span>CTU C1.CV</span><b id="tagCounter">0</b><small>Contador_Caixas</small></div><div class="card tag-card"><span>CTU C1.Q</span><b id="tagTarget">0</b><small>Meta_Atingida</small></div></div>
+    </section>
+
+    <section id="diagnostico" class="view">
+      <div class="grid diagnostic-layout">
+        <div class="card fault-bank"><div class="card-title"><h3>Banco de falhas</h3><span>escolha um cenário</span></div><label for="faultSelect">Falha simulada</label><select id="faultSelect"></select><button id="injectBtn" class="btn red-btn full">INJETAR FALHA</button><button id="randomFaultBtn" class="btn amber-btn full">DESAFIO ALEATÓRIO</button><button id="clearFaultBtn" class="btn blue-btn full">NORMALIZAR SIMULAÇÃO</button><div id="faultHint" class="notice">Nenhuma falha aplicada.</div></div>
+        <div class="card"><div class="card-title"><h3>Instrumentos virtuais</h3><span>leituras simuladas</span></div><div id="measurements" class="measurements"></div><div class="notice info">Compare as leituras e siga: alimentação → entrada → lógica → saída → relé → atuador.</div></div>
+        <div class="card"><div class="card-title"><h3>Ordem de serviço</h3><span id="caseNumber">OS #0000</span></div><div id="caseDescription" class="case-description">Selecione uma falha ou inicie um desafio.</div><label for="diagnosisSelect">Qual é a causa?</label><select id="diagnosisSelect"></select><button id="confirmDiagnosisBtn" class="btn green-btn full">CONFIRMAR DIAGNÓSTICO</button><div id="diagnosisResult" class="notice">Pontuação: <b id="score">0</b></div></div>
+      </div>
+      <div class="card"><div class="card-title"><h3>Histórico de eventos</h3><button id="clearLogBtn" class="ghost small-btn">Limpar</button></div><div id="eventLog" class="event-log"></div></div>
+    </section>
+
+    <section id="estudo" class="view">
+      <div class="grid study-layout"><div class="card"><div class="card-title"><h3>Trilha de treinamento</h3><span id="studyProgress">0%</span></div><div class="progress"><i id="progressBar"></i></div><div id="lessonList" class="lesson-list"></div></div><article id="lessonContent" class="paper"></article></div>
+    </section>
+  </main>
+
+  <footer>Simulação educacional. Em instalações reais, siga os procedimentos da empresa e trabalhe somente com autorização e qualificação.</footer>
+  <script src="js/app.js"></script>
+</body>
+</html>
