@@ -1,25 +1,19 @@
-# Financeiro Pro 3.0
+# Financeiro Pro 3.1 — Sprint 1
 
-Aplicativo financeiro completo, pronto para GitHub Pages e preparado para virar APK.
+Melhoria baseada diretamente na versão publicada no GitHub.
 
-## Recursos
-- Dashboard completo
-- Receitas, despesas e transferências
-- Parcelas e lançamentos recorrentes
-- Contas bancárias e carteiras
-- Cartões de crédito, limite e fatura
-- Investimentos e rentabilidade
-- Metas financeiras
-- Relatórios mensais e anuais
-- Exportação em PDF e CSV
-- Backup e restauração em JSON
-- Tema claro e escuro
-- Senha local
-- Funcionamento offline como PWA
-- Atualização automática do código pelo GitHub Pages
+## Correções
+- Cabeçalho não corta mais ao redimensionar a tela
+- Barra de ações rolável em celulares estreitos
+- Grade do dashboard adaptável
+- Correção de rolagem horizontal
+- Transferência entre duas contas
+- Compras no cartão não descontam duas vezes do patrimônio
+- Fatura calculada por mês
+- Proteção contra exclusão de conta/cartão em uso
+- Carregamento mais seguro se os dados locais estiverem corrompidos
+- Ano do relatório permanece selecionado
+- Cache offline atualizado
 
 ## Publicação
-Envie todos os arquivos para a raiz do repositório e ative o GitHub Pages na branch `main`, pasta `/(root)`.
-
-## Aviso
-Os dados ficam salvos no navegador do aparelho. Faça backup antes de trocar de celular ou limpar os dados do navegador.
+O GitHub Pages usa a branch `main`, pasta `/(root)`.
