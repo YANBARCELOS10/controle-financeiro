@@ -45,6 +45,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -282,6 +283,8 @@ private fun SimulatorControls(
 
 @Composable
 private fun MotorRotor(state: SimulationState) {
+    val surfaceColor = MaterialTheme.colorScheme.surface
+    val outlineColor = MaterialTheme.colorScheme.outline
     val animation = rememberInfiniteTransition(label = "motor")
     val angle by animation.animateFloat(
         initialValue = 0f,
@@ -302,10 +305,10 @@ private fun MotorRotor(state: SimulationState) {
     Canvas(
         Modifier
             .size(64.dp)
-            .background(MaterialTheme.colorScheme.surface, CircleShape)
+            .background(surfaceColor, CircleShape)
     ) {
         drawCircle(
-            color = if (state.running) ElectricBlue else MaterialTheme.colorScheme.outline,
+            color = if (state.running) ElectricBlue else outlineColor,
             radius = size.minDimension * 0.39f,
             style = Stroke(width = 5.dp.toPx())
         )
@@ -313,7 +316,7 @@ private fun MotorRotor(state: SimulationState) {
             repeat(3) { index ->
                 rotate(index * 120f) {
                     drawLine(
-                        color = if (state.running) SignalGreen else MaterialTheme.colorScheme.outline,
+                        color = if (state.running) SignalGreen else outlineColor,
                         start = center,
                         end = Offset(center.x, size.height * 0.16f),
                         strokeWidth = 4.dp.toPx(),
@@ -329,6 +332,7 @@ private fun MotorRotor(state: SimulationState) {
 private fun PowerSchematic(state: SimulationState) {
     val activeColor = if (state.tripped) AlarmRed else ElectricBlue
     val idleColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.58f)
+    val surfaceColor = MaterialTheme.colorScheme.surface
     Canvas(
         Modifier
             .fillMaxWidth()
@@ -349,7 +353,7 @@ private fun PowerSchematic(state: SimulationState) {
             val centerX = left + (index + 1) * (right - left) / (blocks.size + 1)
             val isOn = contactor in state.contactors
             drawRoundRect(
-                color = if (isOn) activeColor.copy(alpha = 0.26f) else MaterialTheme.colorScheme.surface,
+                color = if (isOn) activeColor.copy(alpha = 0.26f) else surfaceColor,
                 topLeft = Offset(centerX - 30.dp.toPx(), y - 34.dp.toPx()),
                 size = Size(60.dp.toPx(), 68.dp.toPx()),
                 cornerRadius = CornerRadius(10.dp.toPx())
@@ -368,7 +372,7 @@ private fun PowerSchematic(state: SimulationState) {
             )
         }
         drawCircle(
-            color = if (state.running) SignalGreen.copy(alpha = 0.22f) else MaterialTheme.colorScheme.surface,
+            color = if (state.running) SignalGreen.copy(alpha = 0.22f) else surfaceColor,
             radius = 27.dp.toPx(),
             center = Offset(right, y),
             style = Stroke(4.dp.toPx())
