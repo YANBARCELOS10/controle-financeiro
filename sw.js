@@ -1,4 +1,4 @@
-const CACHE="financeiro-pro-3-v1";
+const CACHE="financeiro-pro-3-1-v1";
 const ASSETS=["./","./index.html","./manifest.json","./icon.svg"];
 self.addEventListener("install",e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))});
 self.addEventListener("activate",e=>e.waitUntil(Promise.all([self.clients.claim(),caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))])));

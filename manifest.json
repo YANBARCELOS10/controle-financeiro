@@ -1,12 +1,12 @@
 {
-  "name": "Financeiro Pro 3.0",
+  "name": "Financeiro Pro 3.1",
   "short_name": "Financeiro Pro",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#07111f",
   "theme_color": "#07111f",
-  "description": "Aplicativo completo de controle financeiro pessoal.",
+  "description": "Controle financeiro responsivo com contas, cartões, investimentos, metas e relatórios.",
   "icons": [
     {
       "src": "icon.svg",
