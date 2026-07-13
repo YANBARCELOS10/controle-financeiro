@@ -6,6 +6,11 @@ on:
     paths:
       - "comandos-pro/**"
       - ".github/workflows/comandos-pro-apk.yml"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "comandos-pro/**"
+      - ".github/workflows/comandos-pro-apk.yml"
   workflow_dispatch:
 
 permissions:
@@ -47,4 +52,3 @@ jobs:
           path: comandos-pro/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 30
-
