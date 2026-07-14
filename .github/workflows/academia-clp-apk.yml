@@ -13,6 +13,13 @@ on:
       - '.github/workflows/academia-clp-apk.yml'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
+concurrency:
+  group: academia-clp-apk-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-apk:
     runs-on: ubuntu-latest
@@ -39,12 +46,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf build-academia-clp
-          mkdir -p build-academia-clp/www
+          rm -rf build-academia-clp apk-saida
+          mkdir -p build-academia-clp/www apk-saida
           cp -R academia-clp/. build-academia-clp/www/
           cd build-academia-clp
           npm init -y
-          npm install @capacitor/core@7 @capacitor/cli@7 @capacitor/android@7
+          npm install --no-audit --no-fund @capacitor/core@7 @capacitor/cli@7 @capacitor/android@7
           cat > capacitor.config.json <<'JSON'
           {
             "appId": "com.yanbarcelos.academiaclp",
@@ -67,16 +74,32 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon --stacktrace
 
-      - name: Renomear APK
+      - name: Preparar arquivo final
         shell: bash
         run: |
-          mkdir -p apk-saida
           cp build-academia-clp/android/app/build/outputs/apk/debug/app-debug.apk apk-saida/Academia-CLP-Industrial.apk
+          sha256sum apk-saida/Academia-CLP-Industrial.apk > apk-saida/Academia-CLP-Industrial.sha256
 
-      - name: Publicar APK para download
+      - name: Publicar em Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: Academia-CLP-Industrial-APK
-          path: apk-saida/Academia-CLP-Industrial.apk
+          path: |
+            apk-saida/Academia-CLP-Industrial.apk
+            apk-saida/Academia-CLP-Industrial.sha256
           if-no-files-found: error
-          retention-days: 30
+          retention-days: 90
+
+      - name: Criar Release automática
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: academia-clp-build-${{ github.run_number }}
+          name: Academia CLP Industrial - Build ${{ github.run_number }}
+          body: |
+            APK gerado automaticamente pelo GitHub Actions.
+            Commit: ${{ github.sha }}
+          files: |
+            apk-saida/Academia-CLP-Industrial.apk
+            apk-saida/Academia-CLP-Industrial.sha256
+          make_latest: true
