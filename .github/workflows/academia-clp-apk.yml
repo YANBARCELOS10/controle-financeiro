@@ -20,8 +20,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'npm'
-          cache-dependency-path: academia-clp/package-lock.json
 
       - name: Configurar Java
         uses: actions/setup-java@v4
