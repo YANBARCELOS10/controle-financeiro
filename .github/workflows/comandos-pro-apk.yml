@@ -51,23 +51,23 @@ jobs:
 
       - name: Compilar APK Android 16
         working-directory: comandos-pro
-        run: gradle --no-daemon assembleDebug
+        run: gradle --no-daemon assembleRelease
 
       - name: Validar APK
         run: |
-          APK="comandos-pro/app/build/outputs/apk/debug/app-debug.apk"
+          APK="comandos-pro/app/build/outputs/apk/release/app-release.apk"
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose "$APK"
           "$ANDROID_HOME/build-tools/36.0.0/aapt2" dump badging "$APK" | head -n 12
-          cp "$APK" "ComandosPro3D-v3.0.1.apk"
-          sha256sum "ComandosPro3D-v3.0.1.apk" > "ComandosPro3D-v3.0.1.apk.sha256"
+          cp "$APK" "ComandosPro3D-v3.0.2-Compacto.apk"
+          sha256sum "ComandosPro3D-v3.0.2-Compacto.apk" > "ComandosPro3D-v3.0.2-Compacto.apk.sha256"
 
       - name: Publicar artefato testado
         uses: actions/upload-artifact@v4
         with:
-          name: ComandosPro3D-v3.0.1-Android16
+          name: ComandosPro3D-v3.0.2-Compacto-Android16
           path: |
-            ComandosPro3D-v3.0.1.apk
-            ComandosPro3D-v3.0.1.apk.sha256
+            ComandosPro3D-v3.0.2-Compacto.apk
+            ComandosPro3D-v3.0.2-Compacto.apk.sha256
             comandos-pro/app/build/reports/tests/testDebugUnitTest/
             comandos-pro/app/build/reports/lint-results-debug.html
           if-no-files-found: error
@@ -78,6 +78,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TAG="comandos-pro-3d-v3.0.1"
-          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --target "$GITHUB_SHA" --title "Comandos Pro 3D 3.0.1" --notes "Correção de compatibilidade do laboratório 3D: renderizador OpenGL ES 2/3, tratamento seguro de falhas do driver e painel alternativo automático. Uso exclusivamente virtual."
-          gh release upload "$TAG" "ComandosPro3D-v3.0.1.apk" "ComandosPro3D-v3.0.1.apk.sha256" --clobber
+          TAG="comandos-pro-3d-v3.0.2"
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --target "$GITHUB_SHA" --title "Comandos Pro 3D 3.0.2 — Compacto" --notes "APK final compactado com R8 e recursos reduzidos, mantendo a correção de compatibilidade do laboratório 3D. Uso exclusivamente virtual."
+          gh release upload "$TAG" "ComandosPro3D-v3.0.2-Compacto.apk" "ComandosPro3D-v3.0.2-Compacto.apk.sha256" --clobber
