@@ -1,0 +1,79 @@
+name: Academia CLP APK
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'academia-clp/**'
+      - '.github/workflows/academia-clp-apk.yml'
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: academia-clp/package-lock.json
+
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Configurar Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Preparar projeto Capacitor
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf build-academia-clp
+          mkdir -p build-academia-clp/www
+          cp -R academia-clp/. build-academia-clp/www/
+          cd build-academia-clp
+          npm init -y
+          npm install @capacitor/core@7 @capacitor/cli@7 @capacitor/android@7
+          cat > capacitor.config.json <<'JSON'
+          {
+            "appId": "com.yanbarcelos.academiaclp",
+            "appName": "Academia CLP Industrial",
+            "webDir": "www",
+            "bundledWebRuntime": false,
+            "android": {
+              "allowMixedContent": false
+            }
+          }
+          JSON
+          npx cap add android
+          npx cap sync android
+
+      - name: Compilar APK de teste
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd build-academia-clp/android
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Renomear APK
+        shell: bash
+        run: |
+          mkdir -p apk-saida
+          cp build-academia-clp/android/app/build/outputs/apk/debug/app-debug.apk apk-saida/Academia-CLP-Industrial.apk
+
+      - name: Publicar APK para download
+        uses: actions/upload-artifact@v4
+        with:
+          name: Academia-CLP-Industrial-APK
+          path: apk-saida/Academia-CLP-Industrial.apk
+          if-no-files-found: error
+          retention-days: 30
