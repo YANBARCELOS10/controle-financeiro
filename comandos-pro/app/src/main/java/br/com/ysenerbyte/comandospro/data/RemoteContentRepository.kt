@@ -29,7 +29,7 @@ class RemoteContentRepository(context: Context) {
             readTimeout = 8_000
             useCaches = false
             setRequestProperty("Accept", "application/json")
-            setRequestProperty("User-Agent", "ComandosPro3D/3.0")
+            setRequestProperty("User-Agent", "ComandosPro/4.0")
         }
         try {
             if (connection.responseCode !in 200..299) {

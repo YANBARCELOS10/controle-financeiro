@@ -166,7 +166,7 @@ fun QuizScreen(
                         Spacer(Modifier.height(12.dp))
                         Text(
                             if (passed) {
-                                "Aprovado no treinamento Comandos Pro 3D. Este certificado registra conhecimento virtual e não substitui qualificação profissional."
+                                "Aprovado no treinamento Comandos Pro. Este certificado registra conhecimento virtual e não substitui qualificação profissional."
                             } else {
                                 "A nota mínima é 70%. Revise os módulos indicados pelas explicações e tente novamente."
                             },

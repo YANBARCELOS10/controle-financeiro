@@ -41,9 +41,9 @@ fun HomeScreen(
     ) {
         item {
             ScreenIntro(
-                eyebrow = "Comandos Pro 3D",
+                eyebrow = "Comandos Pro",
                 title = "Centro de treinamento",
-                description = "Simulação nativa, painel tridimensional, CLP/IHM e diagnóstico em um ambiente virtual."
+                description = "Comandos elétricos, laboratório didático, CLP/IHM e diagnóstico em um ambiente virtual."
             )
         }
 
@@ -115,7 +115,7 @@ fun HomeScreen(
         item {
             FeatureRow(
                 left = Feature("⚡", "Simulador", "Partidas e falhas", AppScreen.SIMULATOR),
-                right = Feature("◇", "Painel 3D", "Gire, amplie e monte", AppScreen.LAB_3D),
+                right = Feature("▥", "Laboratório", "Imagens, bancada e diagnóstico", AppScreen.LAB),
                 onNavigate = onNavigate
             )
         }
@@ -139,9 +139,9 @@ fun HomeScreen(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
             ) {
                 Column(Modifier.padding(16.dp)) {
-                    Text("Versão profissional 3.0", fontWeight = FontWeight.Bold)
+                    Text("Versão didática profissional 4.0", fontWeight = FontWeight.Bold)
                     Text(
-                        "Android nativo • Kotlin • Jetpack Compose • OpenGL ES 3 • offline-first",
+                        "Android nativo • Kotlin • Jetpack Compose • ilustrações vetoriais • offline-first",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

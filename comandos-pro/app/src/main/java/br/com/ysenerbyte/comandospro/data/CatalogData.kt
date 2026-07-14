@@ -45,7 +45,7 @@ object CatalogData {
             "Comuta cargas de potência por meio de uma bobina e contatos principais.",
             "Bobina A1–A2; potência L1/L2/L3 e T1/T2/T3; auxiliares conforme o modelo.",
             "Motores, reversão, estrela-triângulo e chaveamento industrial.",
-            "No laboratório 3D: animar armadura, auxiliares e intertravamento.",
+            "No laboratório: observar bobina, armadura, contatos principais, auxiliares e intertravamento.",
             "Bobina interrompida, núcleo travado, contato desgastado ou aquecimento.",
             "Nunca manipular um contator energizado; a prática do app é exclusivamente virtual."
         ),
@@ -198,7 +198,7 @@ object CatalogData {
             "Organiza as interfaces do painel e a continuidade de proteção.",
             "Pontos de passagem, pontes e borne de proteção identificados.",
             "Cabos de campo, distribuição de potenciais e aterramento funcional/protetivo.",
-            "No laboratório 3D: organizar zonas e validar a identificação virtual.",
+            "No laboratório: organizar zonas funcionais e validar a identificação virtual.",
             "Conexão deficiente, identificação ausente, ponte ou terminal incompatível.",
             "Montagem real depende do projeto, torque especificado e inspeção qualificada."
         ),

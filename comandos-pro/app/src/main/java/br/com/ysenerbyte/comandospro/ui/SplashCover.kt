@@ -128,11 +128,11 @@ fun SplashCover() {
                 letterSpacing = 1.8.sp
             )
             Text(
-                "3D",
-                fontSize = 34.sp,
+                "INDUSTRIAL",
+                fontSize = 22.sp,
                 fontWeight = FontWeight.Black,
                 color = ElectricBlue,
-                letterSpacing = 6.sp
+                letterSpacing = 2.6.sp
             )
             Spacer(Modifier.height(10.dp))
             Text(

@@ -28,7 +28,7 @@ import br.com.ysenerbyte.comandospro.core.AppScreen
 import br.com.ysenerbyte.comandospro.core.ProgressStore
 import br.com.ysenerbyte.comandospro.core.UserProgress
 import br.com.ysenerbyte.comandospro.ui.screens.HomeScreen
-import br.com.ysenerbyte.comandospro.ui.screens.Lab3DScreen
+import br.com.ysenerbyte.comandospro.ui.screens.LaboratoryScreen
 import br.com.ysenerbyte.comandospro.ui.screens.LibraryScreen
 import br.com.ysenerbyte.comandospro.ui.screens.PlcScreen
 import br.com.ysenerbyte.comandospro.ui.screens.QuizScreen
@@ -39,7 +39,7 @@ import kotlinx.coroutines.delay
 private val mainDestinations = listOf(
     AppScreen.HOME,
     AppScreen.SIMULATOR,
-    AppScreen.LAB_3D,
+    AppScreen.LAB,
     AppScreen.PLC,
     AppScreen.LIBRARY
 )
@@ -90,7 +90,7 @@ fun ComandosProApp() {
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        if (currentScreen == AppScreen.HOME) "Comandos Pro 3D" else currentScreen.title,
+                        if (currentScreen == AppScreen.HOME) "Comandos Pro" else currentScreen.title,
                         fontWeight = FontWeight.Bold
                     )
                 },
@@ -129,7 +129,7 @@ fun ComandosProApp() {
             when (currentScreen) {
                 AppScreen.HOME -> HomeScreen(progress, onNavigate = { currentScreen = it })
                 AppScreen.SIMULATOR -> SimulatorScreen(onAward = ::award)
-                AppScreen.LAB_3D -> Lab3DScreen(onAward = ::award)
+                AppScreen.LAB -> LaboratoryScreen(onAward = ::award)
                 AppScreen.PLC -> PlcScreen(
                     productionCount = progress.productionCount,
                     onCycleComplete = {

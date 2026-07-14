@@ -42,7 +42,7 @@ object TrainingData {
             listOf(
                 "Separar proteção, alimentação, controle, acionamento e bornes.",
                 "Montar o painel virtual em sequência funcional.",
-                "Usar a visualização 3D para reconhecer formas e posições.",
+                "Usar as ilustrações técnicas para reconhecer formas, etiquetas e funções.",
                 "Validar a montagem virtual com checklist."
             )
         ),
@@ -193,9 +193,9 @@ object TrainingData {
             "A soft-starter suaviza a partida; o inversor também regula frequência e velocidade."
         ),
         QuizQuestion(
-            "Qual tela do app permite reconhecer componentes em perspectiva?",
-            listOf("Laboratório 3D", "Somente avaliação", "Tela de versão"), 0,
-            "O laboratório 3D permite girar e ampliar o painel virtual."
+            "Qual tela reúne imagens, fichas, bancada e diagnóstico dos componentes?",
+            listOf("Laboratório didático", "Somente avaliação", "Tela de versão"), 0,
+            "O laboratório didático reúne ilustrações, identificação, aplicação e exercícios virtuais."
         ),
         QuizQuestion(
             "Por que registrar sintomas antes de substituir componentes?",

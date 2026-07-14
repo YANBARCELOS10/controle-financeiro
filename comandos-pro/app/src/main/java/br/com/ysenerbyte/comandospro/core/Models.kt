@@ -3,7 +3,7 @@ package br.com.ysenerbyte.comandospro.core
 enum class AppScreen(val title: String, val symbol: String) {
     HOME("Início", "⌂"),
     SIMULATOR("Simulador", "⚡"),
-    LAB_3D("Laboratório 3D", "◇"),
+    LAB("Laboratório", "▥"),
     PLC("CLP / IHM", "▦"),
     LIBRARY("Biblioteca", "▤"),
     TRAINING("Treinamento", "✓"),
