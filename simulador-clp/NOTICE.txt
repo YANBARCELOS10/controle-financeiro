@@ -1,0 +1,1 @@
+Este simulador é destinado a estudo e treinamento. Não deve ser usado para comandar máquinas reais nem substituir procedimentos de segurança, diagramas elétricos oficiais ou validação de engenharia.
