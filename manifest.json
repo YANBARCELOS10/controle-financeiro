@@ -1,12 +1,12 @@
 {
-  "name": "BF Finance",
-  "short_name": "BF Finance",
+  "name": "Meu Plano Financeiro",
+  "short_name": "Plano Financeiro",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#080b14",
-  "theme_color": "#7c3aed",
-  "description": "Controle financeiro inteligente com contas, cartões, metas, relatórios e backup.",
+  "background_color": "#07111f",
+  "theme_color": "#0f766e",
+  "description": "Planejamento financeiro mensal com controle de gastos, economia, reserva e investimentos.",
   "icons": [
     {
       "src": "icon.svg",
