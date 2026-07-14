@@ -1,6 +1,11 @@
 name: Academia CLP APK
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'academia-clp/**'
+      - '.github/workflows/academia-clp-apk.yml'
   pull_request:
     branches: [main]
     paths:
