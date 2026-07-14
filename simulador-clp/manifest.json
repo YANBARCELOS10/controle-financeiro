@@ -1,0 +1,10 @@
+{
+  "name": "Simulador CLP Industrial",
+  "short_name": "Simulador CLP",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#07111f",
+  "theme_color": "#0f766e",
+  "description": "Treinamento didático de CLP, entradas, saídas, Ladder e diagnóstico de falhas."
+}
