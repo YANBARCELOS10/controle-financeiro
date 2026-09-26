@@ -1,18 +1,14 @@
 {
-  "name": "Meu Plano Financeiro",
-  "short_name": "Plano Financeiro",
+  "name": "BF Finance 5.0",
+  "short_name": "BF Finance",
+  "description": "Controle financeiro pessoal com lançamentos, orçamento, metas, gráficos e relatórios.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#07111f",
-  "theme_color": "#0f766e",
-  "description": "Planejamento financeiro mensal com controle de gastos, economia, reserva e investimentos.",
+  "orientation": "portrait-primary",
+  "background_color": "#090b13",
+  "theme_color": "#6d28d9",
   "icons": [
-    {
-      "src": "icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    }
+    {"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
   ]
 }
