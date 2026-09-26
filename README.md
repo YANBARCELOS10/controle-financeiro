@@ -1,22 +1,24 @@
-# BF Finance 4.0
+# BF Finance 5.0
 
-Controle financeiro inteligente com interface moderna e responsiva.
+Aplicativo web/PWA para controle financeiro pessoal.
 
-## Novidades
-- Nova marca BF Finance
-- Novo ícone com as letras BF
-- Saldo principal em destaque
-- Cabeçalho mais limpo
-- Backup, restauração e CSV movidos para Configurações
-- Menu inferior no celular
-- Tema claro e escuro
-- Contas, cartões, metas e lançamentos
-- Relatório em PDF
-- Salvamento automático no aparelho
-- Funcionamento offline como PWA
+## Recursos
+- Dashboard mensal com receitas, despesas, saldo, pendências e orçamento
+- Lançamentos pagos, pendentes e recorrentes
+- Orçamento mensal por categoria
+- Metas de reserva, investimento e objetivos
+- Gráficos de receitas x despesas, categorias e evolução do saldo
+- Relatório anual
+- Exportação CSV
+- Backup e restauração com validação
+- IndexedDB para armazenamento local
+- Migração automática de versões anteriores
+- Tema claro/escuro
+- Funcionamento offline e instalação como PWA
+- Layout responsivo para celular e desktop
 
 ## Publicação
-O GitHub Pages usa a branch `main`, pasta `/(root)`.
+O app é publicado pelo GitHub Pages a partir da branch `main`, na raiz do repositório.
 
-## Observação
-Os dados continuam usando a mesma chave local da versão anterior, para preservar o que já foi cadastrado no aparelho.
+## Dados
+Os dados financeiros ficam no navegador/aparelho. Use o backup antes de limpar dados do navegador ou trocar de aparelho.
