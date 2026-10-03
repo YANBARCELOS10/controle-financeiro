@@ -1,0 +1,14 @@
+{
+  "revision": 2,
+  "headline": "Novo laboratório didático disponível",
+  "message": "Este pacote vem diretamente do Git e permite publicar materiais curtos sem gerar outro APK.",
+  "tips": [
+    "Compare os LEDs virtuais com a sequência lógica antes de escolher uma hipótese de falha.",
+    "Na reversão, pare o motor virtual antes de solicitar o sentido oposto.",
+    "Na estrela-triângulo, observe o intervalo em que somente o contator principal permanece ativo.",
+    "No laboratório, abra a ficha de cada componente e relacione imagem, tag, função e falhas comuns.",
+    "Use apenas apelido na sincronização; não informe nome completo ou dados pessoais."
+  ],
+  "releaseUrl": "https://github.com/YANBARCELOS10/controle-financeiro/releases",
+  "updatedAt": "2026-07-14"
+}
